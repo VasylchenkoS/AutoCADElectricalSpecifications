@@ -8,10 +8,6 @@
     End Sub
 
     Private Sub btnOk_Click(sender As Object, e As EventArgs) Handles btnOk.Click
-        rbProjCreate.Checked = False
-        rbProjUpdate.Checked = False
-        rbSheetCreate.Checked = False
-        rbSheetUpdate.Checked = False
         Me.Close()
     End Sub
 

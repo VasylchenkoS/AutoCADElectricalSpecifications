@@ -9,7 +9,6 @@ Namespace com.vasilchenko.Modules
             Dim specItemList As New List(Of DrawingSpecificationItem)
             specItemList = DBDataAccessObject.FillSheetItemData(acDatabase, specItemList)
             specItemList = DBDataAccessObject.FillSheetTerminalData(acDatabase, specItemList)
-            Dim a = MakeListForSheet(specItemList)
             Return MakeListForSheet(specItemList)
         End Function
 
@@ -27,6 +26,10 @@ Namespace com.vasilchenko.Modules
                 ElseIf key = 5 Then
                     For Each item In locList
                         item.Location = "Обладнання на ПС"
+                    Next
+                Else
+                    For Each item In locList
+                        item.Location = item.Location.Chars(0) & item.Location.ToLower.Remove(0, 1)
                     Next
                 End If
 

@@ -89,6 +89,9 @@
       <HintPath>C:\Program Files (x86)\Autodesk\ObjectARX 2018\inc\acdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="AcePageManMgd">
+      <HintPath>C:\Program Files\Autodesk\AutoCAD 2018\Acade\AcePageManMgd.dll</HintPath>
+    </Reference>
     <Reference Include="acmgd, Version=22.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Autodesk\ObjectARX 2018\inc\acmgd.dll</HintPath>
@@ -140,10 +143,10 @@
     <Compile Include="src\com\vasilchenko\Modules\ItemListMaker.vb" />
     <Compile Include="src\com\vasilchenko\Modules\AdditionalFunctions.vb" />
     <Compile Include="src\com\vasilchenko\Modules\SheetTableUpdater.vb" />
-    <Compile Include="src\com\vasilchenko\SpecSelector.Designer.vb">
-      <DependentUpon>SpecSelector.vb</DependentUpon>
+    <Compile Include="src\com\vasilchenko\Forms\ufSpecSelector.Designer.vb">
+      <DependentUpon>ufSpecSelector.vb</DependentUpon>
     </Compile>
-    <Compile Include="src\com\vasilchenko\SpecSelector.vb">
+    <Compile Include="src\com\vasilchenko\Forms\ufSpecSelector.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="src\com\vasilchenko\Modules\SheetTableDrawing.vb" />
@@ -155,8 +158,8 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="src\com\vasilchenko\SpecSelector.resx">
-      <DependentUpon>SpecSelector.vb</DependentUpon>
+    <EmbeddedResource Include="src\com\vasilchenko\Forms\ufSpecSelector.resx">
+      <DependentUpon>ufSpecSelector.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
