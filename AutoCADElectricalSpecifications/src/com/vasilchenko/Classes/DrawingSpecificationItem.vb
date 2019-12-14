@@ -1,136 +1,83 @@
-﻿Imports AutoCADElectricalSpecifications.com.vasilchenko.Modules
+﻿Imports System.Linq
+Imports AutoCADElectricalSpecifications.com.vasilchenko.Modules
 
 Namespace com.vasilchenko.Classes
     Public Class DrawingSpecificationItem
-        Private _objTAG As New List(Of String)
-        Private _strFamily As String
-        Private _strCatalogName As String
-        Private _strLocation As String
-        Private _shtInstance As Short
-        Private _strDescription As String
-        Private _strManufacture As String
-        Private _shtCount As Short
+        Private _objTag As New List(Of String)
         Private _strFullDescription As String
-        Private _strNote As String = ""
-        Private _strArticle As String = ""
-        Private _strUnit As String
-        Public ReadOnly Property TAG As String
+        Private _countList As List(Of Integer)
+
+        Sub New()
+            _countList = New List(Of Integer)
+            _objTag = New List(Of String)
+        End Sub
+        Public ReadOnly Property Tag As String
             Get
-                _objTAG.Sort()
-                If _objTAG.Count < 3 Then
-                    Dim strTag As String = _objTAG(0)
-                    For s = 1 To _objTAG.Count - 1
-                        strTag += ", " & _objTAG(s)
+                if _objTag.Count = 0 Then
+                    Return "-"
+                else
+                    _objTag = _objTag.OrderBy(Function(x) AdditionalFunctions.GetLastNumericFromString(x)).ToList
+                    Dim strTag As String = _objTag(0)
+                    For s = 1 To _objTag.Count - 1
+                        strTag += ", " & _objTag(s)
                     Next
                     Return strTag
-                ElseIf _objTAG.Count > 2 Then
-                    Dim strTag As String = _objTAG(0) & "-" & _objTAG(_objTAG.Count - 1)
-                    Return strTag
-                End If
-                Return ""
+                end if
             End Get
         End Property
         Public Sub AddTag(value As String)
-            If Not Me._objTAG.Exists(Function(x) x.Equals(value)) Then
-                Me._objTAG.Add(value)
+            If Not _objTag.Exists(Function(x) x.Equals(value)) Then
+                _objTag.Add(value)
             End If
-            Me._shtCount += 1
         End Sub
         Public Property Family As String
-            Get
-                Return _strFamily
-            End Get
-            Set(value As String)
-                Me._strFamily = value
-            End Set
-        End Property
 
         Public Property CatalogName As String
-            Get
-                Return _strCatalogName
-            End Get
-            Set(value As String)
-                Me._strCatalogName = value
-            End Set
-        End Property
 
         Public Property Location As String
-            Get
-                Return _strLocation
-            End Get
-            Set(value As String)
-                Me._strLocation = value
-            End Set
-        End Property
 
         Public Property Instance As Short
-            Get
-                Return _shtInstance
-            End Get
-            Set(value As Short)
-                Me._shtInstance = value
-            End Set
-        End Property
+
         Public Property Description As String
-            Get
-                Return _strDescription
-            End Get
-            Set(value As String)
-                Me._strDescription = value
-            End Set
-        End Property
 
         Public Property Manufacture As String
-            Get
-                Return _strManufacture
-            End Get
-            Set(value As String)
-                Me._strManufacture = value
-            End Set
-        End Property
 
-        Public Property Count As Short
-            Get
-                Return _shtCount
-            End Get
-            Set(value As Short)
-                Me._shtCount = value
-            End Set
-        End Property
+        Public Property Count As Double
 
-        Public Property Note As String
-            Get
-                Return _strNote
-            End Get
-            Set(value As String)
-                Me._strNote = value
-            End Set
-        End Property
+        Public Property Note As String = ""
 
-        Public Property Article As String
-            Get
-                Return _strArticle
-            End Get
-            Set(value As String)
-                Me._strArticle = value
-            End Set
-        End Property
+        Public Property Article As String = ""
 
         Public Property Unit As String
+
+        Public ReadOnly Property CountList As List(Of Integer)
             Get
-                Return _strUnit
+                _countList.Sort()
+                _countList.Reverse()
+                Return _countList
             End Get
-            Set(value As String)
-                Me._strUnit = value
-            End Set
         End Property
+        Public Sub AddLength(value As Integer)
+            _countList.Add(value)
+        End Sub
+
+        Public Property BlockName As String
 
         Public ReadOnly Property FullDescription As String
             Get
-                Me._strFullDescription = Me.Description & ", " & vbCr & Me.Manufacture & " " & Me.CatalogName & IIf(Me.Article <> "", " (" & Me.Article & ")", "")
+                'Me._strFullDescription = Me.Description & ", " & vbCr & Me.Manufacture & " " & s & IIf(Me.Article <> "", " (" & Me.Article & ")", "")
+                _strFullDescription = Description & IIf(CatalogName.ToLower.Contains("nomark"), "", ", " & CatalogName) &
+                                         vbCr &
+                                         IIf(Article.Equals(""), "", " (" & Article & ")")
                 Return _strFullDescription
             End Get
         End Property
+
+        Protected Overrides Sub Finalize()
+            _countList = Nothing
+            _objTag = Nothing
+        End Sub
+
     End Class
 
 End Namespace

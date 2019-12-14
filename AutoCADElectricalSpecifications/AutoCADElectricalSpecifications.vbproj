@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnit.3.11.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,7 +14,7 @@
     <AssemblyName>AutoCADElectricalSpecifications</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</ProjectTypeGuids>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -34,6 +35,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,7 +49,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisIgnoreGeneratedCode>true</CodeAnalysisIgnoreGeneratedCode>
     <RegisterForComInterop>false</RegisterForComInterop>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -71,11 +74,14 @@
   <PropertyGroup>
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
     <!--AutoCAD References-->
     <Reference Include="accoremgd, Version=22.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Autodesk\ObjectARX 2018\inc\accoremgd.dll</HintPath>
+      <HintPath>C:\Program Files\Autodesk\ApplicationPlugins\accoremgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <!--Map 3D References-->
@@ -86,18 +92,26 @@
     <!--AME Reference End-->
     <Reference Include="acdbmgd, Version=22.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Autodesk\ObjectARX 2018\inc\acdbmgd.dll</HintPath>
+      <HintPath>C:\Program Files\Autodesk\ApplicationPlugins\acdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="AcePageManMgd">
-      <HintPath>C:\Program Files\Autodesk\AutoCAD 2018\Acade\AcePageManMgd.dll</HintPath>
-    </Reference>
-    <Reference Include="acmgd, Version=22.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+    <Reference Include="AcePageManMgd, Version=1.0.6247.10439, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Autodesk\ObjectARX 2018\inc\acmgd.dll</HintPath>
+      <HintPath>C:\Program Files\Autodesk\ApplicationPlugins\AcePageManMgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="acmgd">
+      <HintPath>C:\Program Files\Autodesk\ApplicationPlugins\acmgd.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
@@ -121,6 +135,12 @@
     <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="eknis_asu_default_catDataSet.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>eknis_asu_default_catDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="GlobalSuppressions.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -136,20 +156,33 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="src\com\vasilchenko\Classes\CableItem.vb" />
+    <Compile Include="src\com\vasilchenko\Classes\ListViewColumnSorter.vb" />
     <Compile Include="src\com\vasilchenko\Classes\DrawingSpecificationItem.vb" />
     <Compile Include="src\com\vasilchenko\Commands.vb" />
-    <Compile Include="src\com\vasilchenko\DatabaseConnection\DBDataAccessObject.vb" />
-    <Compile Include="src\com\vasilchenko\DatabaseConnection\DBConnections.vb" />
+    <Compile Include="src\com\vasilchenko\DatabaseConnection\DatabaseDataAccessObject.vb" />
+    <Compile Include="src\com\vasilchenko\DatabaseConnection\DatabaseConnections.vb" />
+    <Compile Include="src\com\vasilchenko\Forms\PageSelector.Designer.vb">
+      <DependentUpon>PageSelector.vb</DependentUpon>
+    </Compile>
+    <Compile Include="src\com\vasilchenko\Forms\PageSelector.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\com\vasilchenko\Modules\PageTableUpdater.vb" />
+    <Compile Include="src\com\vasilchenko\Modules\PageListMaker.vb" />
     <Compile Include="src\com\vasilchenko\Modules\ItemListMaker.vb" />
     <Compile Include="src\com\vasilchenko\Modules\AdditionalFunctions.vb" />
-    <Compile Include="src\com\vasilchenko\Modules\SheetTableUpdater.vb" />
+    <Compile Include="src\com\vasilchenko\Modules\PageTableDrawing.vb" />
+    <Compile Include="src\com\vasilchenko\Modules\CableTableDrawing.vb" />
+    <Compile Include="src\com\vasilchenko\Modules\ProjectTableDrawing.vb" />
+    <Compile Include="src\com\vasilchenko\Modules\KDTableUpdater.vb" />
     <Compile Include="src\com\vasilchenko\Forms\ufSpecSelector.Designer.vb">
       <DependentUpon>ufSpecSelector.vb</DependentUpon>
     </Compile>
     <Compile Include="src\com\vasilchenko\Forms\ufSpecSelector.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\com\vasilchenko\Modules\SheetTableDrawing.vb" />
+    <Compile Include="src\com\vasilchenko\Modules\KDTableDrawing.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -158,12 +191,26 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="src\com\vasilchenko\Forms\PageSelector.resx">
+      <DependentUpon>PageSelector.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="src\com\vasilchenko\Forms\ufSpecSelector.resx">
       <DependentUpon>ufSpecSelector.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="eknis_asu_default_catDataSet.xsc">
+      <DependentUpon>eknis_asu_default_catDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="eknis_asu_default_catDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>eknis_asu_default_catDataSet.Designer.vb</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="eknis_asu_default_catDataSet.xss">
+      <DependentUpon>eknis_asu_default_catDataSet.xsd</DependentUpon>
+    </None>
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -173,6 +220,7 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -196,8 +244,13 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Данный проект ссылается на пакеты NuGet, отсутствующие на этом компьютере. Используйте восстановление пакетов NuGet, чтобы скачать их.  Дополнительную информацию см. по адресу: http://go.microsoft.com/fwlink/?LinkID=322105. Отсутствует следующий файл: {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.11.0\build\NUnit.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
