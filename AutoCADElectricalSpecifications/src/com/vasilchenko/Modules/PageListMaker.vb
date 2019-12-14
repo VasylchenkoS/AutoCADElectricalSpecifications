@@ -44,9 +44,6 @@ Namespace com.vasilchenko.Modules
 ON [COMP].[TAGNAME] = A.[TAGNAME] WHERE A.[PAR1_CHLD2]='2' AND A.[DWGIX] = '" & i & "' AND [COMP].[PAR1_CHLD2]='1'"
             DatabaseDataAccessObject.FillItemData(specItemList, strSqlQuery)
 
-            strSqlQuery = "SELECT [TAGNAME], [MFG], [CAT], [INST], [LOC], [FAMILY], [CNT], [UM], [DESC3], [PAR1_CHLD2] " & "FROM [COMP] " & "WHERE [TAGNAME] IN (" & "SELECT [TAGNAME] " & "FROM [COMP] " & "WHERE ([INST] NOT LIKE '9[0-9]%' OR [INST] IS NULL) " & "AND [TAGNAME] IS NOT NULL) " & "AND (([PAR1_CHLD2] = '2' OR [PAR1_CHLD2] BETWEEN '301' AND '399') AND [MFG] <> 'IGNORED') " & "AND [DWGIX] = '" & i & "'"
-            DatabaseDataAccessObject.FillItemData(specItemList, strSqlQuery)
-
             strSqlQuery = "SELECT [MFG], [CAT], [INST], [LOC], [WDBLKNAM], [CNT], [UM], [DESC3], [TAGNAME] " & "FROM [PNLCOMP] " & "WHERE ([INST] NOT LIKE '9[0-9]%' OR [INST] IS NULL) " & "AND ([PAR1_CHLD2] = '1' OR [PAR1_CHLD2] = '301') " & "AND [MFG] <> 'IGNORED' " & "AND (([TAGNAME] IS NOT NULL AND [WDBLKNAM] = 'EN') " & "OR ([TAGNAME] IS NULL AND [WDBLKNAM] <> 'DIN' AND [WDBLKNAM] <> 'WW' AND [WDBLKNAM] <> 'DI') " & "OR ([TAGNAME] IS NOT NULL AND [WDBLKNAM] = 'WW' AND [CNT] IS NULL)) " & "AND [DWGIX] = '" & i & "'"
             DatabaseDataAccessObject.FillMountItemData(specItemList, strSqlQuery)
 
