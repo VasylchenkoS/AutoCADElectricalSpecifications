@@ -13,22 +13,26 @@ Namespace com.vasilchenko.Classes
         End Sub
         Public ReadOnly Property Tag As String
             Get
-                if _objTag.Count = 0 Then
+                If _objTag.Count = 0 Then
                     Return "-"
-                else
+                Else
                     _objTag = _objTag.OrderBy(Function(x) AdditionalFunctions.GetLastNumericFromString(x)).ToList
                     Dim strTag As String = _objTag(0)
                     For s = 1 To _objTag.Count - 1
                         strTag += ", " & _objTag(s)
                     Next
                     Return strTag
-                end if
+                End If
             End Get
         End Property
         Public Sub AddTag(value As String)
-            If Not _objTag.Exists(Function(x) x.Equals(value)) Then
-                _objTag.Add(value)
-            End If
+            Dim str() As String = Split(value, ",")
+            For Each txt In str
+                txt = txt.Trim
+                If Not _objTag.Exists(Function(x) x.Equals(txt)) Then
+                    _objTag.Add(txt)
+                End If
+            Next
         End Sub
         Public Property Family As String
 

@@ -8,13 +8,14 @@ Namespace com.vasilchenko.Modules
     Public Module PageTableDrawing
         ReadOnly DblRowsHeight As Double = 8
 
-        Public Sub DrawPagesTable(acDatabase As Database, acTransaction As Transaction, acEditor As Editor)
+        Public Function DrawPagesTable(acDatabase As Database, acTransaction As Transaction, acEditor As Editor) As ObjectId
             Dim list As List(Of Integer) = PageListMaker.SelectPages()
             Dim itemList As SortedList(Of String, List(Of DrawingSpecificationItem)) = PageListMaker.MakePagesItemList(acDatabase, acTransaction, list)
+            Dim acTableObjectID As ObjectId
 
             Dim acPoint As PromptPointResult = acEditor.GetPoint("\nEnter table insertion point: ")
             If acPoint.Status <> PromptStatus.OK Then
-                Exit Sub
+                Return Nothing
             End If
 
             Dim acBlockTable As BlockTable = DirectCast(acTransaction.GetObject(acDatabase.BlockTableId, OpenMode.ForRead), BlockTable)
@@ -32,7 +33,7 @@ Namespace com.vasilchenko.Modules
 
 #Disable Warning BC40000 ' Тип или член устарел
                 .HorizontalCellMargin = 1.0
-                .VerticalCellMargin = 1.0
+                .VerticalCellMargin = 0.0
 #Enable Warning BC40000 ' Тип или член устарел
 
                 .Position = acPoint.Value
@@ -40,9 +41,9 @@ Namespace com.vasilchenko.Modules
                 .Rows(0).Alignment = CellAlignment.MiddleCenter
                 .InsertColumns(0, 1, intColumnsNum - 1)
                 .Columns(0).Width = 10
-                .Columns(1).Width = 25
+                .Columns(1).Width = 30
                 .Columns(2).Width = 80
-                .Columns(3).Width = 30
+                .Columns(3).Width = 25
                 .Columns(4).Width = 10
                 .Columns(5).Width = 30
                 .Cells(0, 0).TextString = "№№"
@@ -68,18 +69,29 @@ Namespace com.vasilchenko.Modules
             acTable.SetBreakSpacing(25)
             acTable.RecomputeTableBlock(True)
 
-            acBlkTblRecord.AppendEntity(acTable)
+            acTableObjectID = acBlkTblRecord.AppendEntity(acTable)
             acTransaction.AddNewlyCreatedDBObject(acTable, True)
 
             acTable.Dispose()
-        End Sub
+
+            Return acTableObjectID
+
+        End Function
 
         Public Sub FillTable(itemSortedList As SortedList(Of String, List(Of DrawingSpecificationItem)), ByRef acTable As Table)
             Dim intRowsNum As Integer = 1
             Dim locCount As Short = 1
             Dim blnOnce = True
-            If itemSortedList.Keys.Count = 1 Then blnOnce = False
-            For Each location In itemSortedList.Keys
+            Dim itemKey As New SortedList(Of Integer, String)
+            If itemSortedList.Keys.Count = 1 Then
+                blnOnce = False
+                itemKey.Add(0, itemSortedList.Keys(0))
+            Else
+                For Each pair In itemSortedList
+                    itemKey.Add(pair.Value(0).Instance, pair.Key)
+                Next
+            End If
+            For Each location In itemKey.Values
                 Dim itemList = itemSortedList.Item(location)
                 InsertLocations(itemList, locCount, acTable, intRowsNum, blnOnce, location)
             Next

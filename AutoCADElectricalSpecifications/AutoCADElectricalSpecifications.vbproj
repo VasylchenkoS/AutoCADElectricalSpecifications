@@ -14,7 +14,7 @@
     <AssemblyName>AutoCADElectricalSpecifications</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</ProjectTypeGuids>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -77,11 +77,32 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DocumentationFile>AutoCADElectricalSpecifications.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DocumentationFile>AutoCADElectricalSpecifications.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <!--AutoCAD References-->
     <Reference Include="accoremgd, Version=22.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\Autodesk\ApplicationPlugins\accoremgd.dll</HintPath>
+      <HintPath>..\..\..\Tools\2020 dll\accoremgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <!--Map 3D References-->
@@ -92,16 +113,16 @@
     <!--AME Reference End-->
     <Reference Include="acdbmgd, Version=22.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\Autodesk\ApplicationPlugins\acdbmgd.dll</HintPath>
+      <HintPath>..\..\..\Tools\2020 dll\acdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="AcePageManMgd, Version=1.0.6247.10439, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\Autodesk\ApplicationPlugins\AcePageManMgd.dll</HintPath>
+      <HintPath>..\..\..\Tools\2020 dll\AcePageManMgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="acmgd">
-      <HintPath>C:\Program Files\Autodesk\ApplicationPlugins\acmgd.dll</HintPath>
+      <HintPath>..\..\..\Tools\2020 dll\acmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
@@ -168,9 +189,10 @@
     <Compile Include="src\com\vasilchenko\Forms\PageSelector.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="src\com\vasilchenko\Modules\KDItemListMaker.vb" />
     <Compile Include="src\com\vasilchenko\Modules\PageTableUpdater.vb" />
     <Compile Include="src\com\vasilchenko\Modules\PageListMaker.vb" />
-    <Compile Include="src\com\vasilchenko\Modules\ItemListMaker.vb" />
+    <Compile Include="src\com\vasilchenko\Modules\ProjectItemListMaker.vb" />
     <Compile Include="src\com\vasilchenko\Modules\AdditionalFunctions.vb" />
     <Compile Include="src\com\vasilchenko\Modules\PageTableDrawing.vb" />
     <Compile Include="src\com\vasilchenko\Modules\CableTableDrawing.vb" />

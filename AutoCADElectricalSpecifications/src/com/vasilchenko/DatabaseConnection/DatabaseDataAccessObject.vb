@@ -7,12 +7,20 @@ Namespace com.vasilchenko.DatabaseConnection
         Public Sub FillItemData(ByVal inputList As List(Of DrawingSpecificationItem), Optional strSqlQuery As String = "")
             If strSqlQuery = "" Then
                 strSqlQuery = "SELECT [TAGNAME], [MFG], [CAT], [INST], [LOC], [FAMILY], [CNT], [UM], [DESC3], [PAR1_CHLD2] " &
-                              "FROM [COMP] " &
-                              "WHERE [TAGNAME] IN (" &
-                                "SELECT [TAGNAME] " &
                                 "FROM [COMP] " &
-                                "WHERE ([INST] NOT LIKE '9[0-9]%' OR [INST] IS NULL) AND [TAGNAME] IS NOT NULL) " &
-                              "AND (([PAR1_CHLD2] = '1' OR [PAR1_CHLD2] BETWEEN '301' AND '399') AND [MFG] <> 'IGNORED') " &
+                                "WHERE [TAGNAME] IN (" &
+                                    "SELECT [TAGNAME] " &
+                                    "FROM [COMP] " &
+                                    "WHERE ([INST] NOT LIKE '9[0-9]%' OR [INST] IS NULL) AND [TAGNAME] IS NOT NULL) " &
+                                "AND [PAR1_CHLD2] = '1' AND [MFG] <> 'IGNORED' " &
+                                "UNION ALL " &
+                                "SELECT DISTINCT [TAGNAME], [MFG], [CAT], [INST], [LOC], [FAMILY], [CNT], [UM], [DESC3], [PAR1_CHLD2]  " &
+                                "FROM [COMP]  " &
+                                "WHERE " &
+                                    "([INST] NOT LIKE '9[0-9]%' OR [INST] IS NULL)  " &
+                                    "AND [TAGNAME] IS NOT NULL  " &
+                                    "AND [PAR1_CHLD2] BETWEEN '301' AND '399'  " &
+                                    "AND [MFG] <> 'IGNORED' " &
                               "ORDER BY [INST], [MFG], [TAGNAME], [PAR1_CHLD2]"
             End If
 
@@ -35,10 +43,16 @@ Namespace com.vasilchenko.DatabaseConnection
                         Else
                             currentItem.Count = 1
                         End If
-                        If Not IsDBNull(.item("INST")) Then currentItem.Instance = AdditionalFunctions.GetLastNumericFromString(.item("INST")) Else _
-                            Throw New ArgumentNullException("Елемент " & currentItem.CatalogName & ". Не указана Ф-я группа")
-                        If Not IsDBNull(.item("LOC")) Then currentItem.Location = .item("LOC") Else _
-                            Throw New ArgumentNullException("Елемент " & currentItem.Tag & ". Не указано местоположение")
+                        If Not IsDBNull(.item("INST")) Then
+                            currentItem.Instance = AdditionalFunctions.GetLastNumericFromString(.item("INST"))
+                        Else
+                            If currentItem.CatalogName.Equals("IGNORED") OrElse currentItem.Manufacture.Equals("IGNORED") Then
+                                currentItem.Instance = 0
+                            Else
+                                Throw New ArgumentNullException("Елемент " & currentItem.CatalogName & ". Не указана Ф-я группа")
+                            End If
+                        End If
+                        If Not IsDBNull(.item("LOC")) Then currentItem.Location = .item("LOC") Else Throw New ArgumentNullException("Елемент " & currentItem.Tag & ". Не указано местоположение")
                         If Not IsDBNull(.item("DESC3")) Then currentItem.Note = .item("DESC3")
                         If Not IsDBNull(.item("FAMILY")) Then currentItem.Family = .item("FAMILY")
                         If Not IsDBNull(.item("PAR1_CHLD2")) AndAlso CInt(.item("PAR1_CHLD2")) > 300 Then
@@ -117,6 +131,7 @@ Namespace com.vasilchenko.DatabaseConnection
                         currentItem.Family = "TRMS"
                         If Not IsDBNull(.item("MFG")) Then currentItem.Manufacture = .item("MFG")
                         If Not IsDBNull(.item("CAT")) Then currentItem.CatalogName = .item("CAT")
+                        If Not IsDBNull(.item("DESC3")) Then currentItem.Note = .item("DESC3")
                         If Not IsDBNull(.item("INST")) Then currentItem.Instance = AdditionalFunctions.GetLastNumericFromString(.item("INST")) Else _
                             Throw New ArgumentNullException("Елемент " & currentItem.CatalogName & ". Не указана Ф-я группа")
                         If Not IsDBNull(.item("LOC")) Then currentItem.Location = .item("LOC") Else _
@@ -135,7 +150,7 @@ Namespace com.vasilchenko.DatabaseConnection
 
         Public Sub FillMountTerminalData(ByRef inputList As List(Of DrawingSpecificationItem), Optional strSqlQuery As String = "")
             If strSqlQuery = "" Then
-                strSqlQuery = "SELECT [TAGSTRIP], [MFG], [CAT], [INST], [LOC], [WDBLKNAM], [CNT] " &
+                strSqlQuery = "SELECT [TAGSTRIP], [MFG], [CAT], [INST], [LOC], [WDBLKNAM], [CNT], [DESC3] " &
                               "FROM [PNLTERM] " &
                               "WHERE [INST] NOT LIKE '9[0-9]%' " &
                                 "AND [PAR1_CHLD2] = '1' " &
@@ -150,6 +165,7 @@ Namespace com.vasilchenko.DatabaseConnection
                         If Not IsDBNull(.item("WDBLKNAM")) Then currentItem.Family = .item("WDBLKNAM")
                         If Not IsDBNull(.item("MFG")) Then currentItem.Manufacture = .item("MFG")
                         If Not IsDBNull(.item("CAT")) Then currentItem.CatalogName = .item("CAT")
+                        If Not IsDBNull(.item("DESC3")) Then currentItem.Note = .item("DESC3")
                         If Not IsDBNull(.item("INST")) Then currentItem.Instance = AdditionalFunctions.GetLastNumericFromString(.item("INST")) Else _
                             Throw New ArgumentNullException("Елемент " & currentItem.CatalogName & ". Не указана Ф-я группа")
                         If Not IsDBNull(.item("LOC")) Then currentItem.Location = .item("LOC") Else _
@@ -167,7 +183,7 @@ Namespace com.vasilchenko.DatabaseConnection
 
             If inputList.Count = 0 Then Exit Sub
 
-            strSqlQuery = "SELECT [TAGSTRIP], [MFG], [CAT], [INST], [LOC], [WDBLKNAM], [CNT] " &
+            strSqlQuery = "SELECT [TAGSTRIP], [MFG], [CAT], [INST], [LOC], [WDBLKNAM], [CNT], [DESC3] " &
                           "FROM [TERMS] " &
                           "WHERE [INST] NOT LIKE '9[0-9]%' " &
                             "AND Left([PAR1_CHLD2],1) LIKE '3' " &
@@ -181,6 +197,7 @@ Namespace com.vasilchenko.DatabaseConnection
                         If Not IsDBNull(.item("TAGSTRIP")) Then currentItem.AddTag(.item("TAGSTRIP"))
                         If Not IsDBNull(.item("MFG")) Then currentItem.Manufacture = .item("MFG")
                         If Not IsDBNull(.item("CAT")) Then currentItem.CatalogName = .item("CAT")
+                        If Not IsDBNull(.item("DESC3")) Then currentItem.Note = .item("DESC3")
                         If Not IsDBNull(.item("INST")) Then currentItem.Instance = AdditionalFunctions.GetLastNumericFromString(.item("INST")) Else _
                             Throw New ArgumentNullException("Елемент " & currentItem.CatalogName & ". Не указана Ф-я группа")
                         If Not IsDBNull(.item("LOC")) Then currentItem.Location = .item("LOC") Else _
@@ -196,22 +213,23 @@ Namespace com.vasilchenko.DatabaseConnection
                 Next objRow
             End If
 
-            If inputList.Exists(Function(x) x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("ST 2,5") And x.CatalogName.Contains("2,5") And x.Instance = 61) Then
+            'If inputList.Exists(Function(x) x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("ST 2,5") And x.CatalogName.Contains("2,5") And x.Instance = 61) Then
+            If inputList.Exists(Function(x) x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("ST 2,5") And x.CatalogName.Contains("2,5")) Then
                 Dim shtCount = 0.0
                 Dim taglist As New List(Of String)
                 Dim item As New DrawingSpecificationItem
-                For Each temp In inputList.FindAll(Function(x) x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("ST") And x.CatalogName.Contains("2,5") And x.Instance = 61)
+                'For Each temp In inputList.FindAll(Function(x) x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("ST") And x.CatalogName.Contains("2,5") And x.Instance = 61)
+                For Each temp In inputList.FindAll(Function(x) x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("ST") And x.CatalogName.Contains("2,5"))
                     If temp.CatalogName.StartsWith("UT 2,5") Or temp.CatalogName.StartsWith("ST 2,5") Then
                         shtCount += temp.Count * 2
                     ElseIf temp.CatalogName.StartsWith("UTTB 2,5") Or temp.CatalogName.StartsWith("STTB 2,5") Then
                         shtCount += temp.Count * 4
                     End If
-
                     TerminalMarkingTagAdd(taglist, temp)
-
+                    item.Instance = IIf(temp.Instance = 61, 64, 764)
                 Next
-                item.Location = inputList.Find(Function(x) x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("ST") And x.CatalogName.Contains("2,5") And x.Instance = 61).Location
-                item.Instance = AdditionalFunctions.GetLastNumericFromString("64.КЛЕММЫ-МАРКИРОВКА")
+                'item.Location = inputList.Find(Function(x) x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("ST") And x.CatalogName.Contains("2,5") And x.Instance = 61).Location
+                item.Location = inputList.Find(Function(x) x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("ST") And x.CatalogName.Contains("2,5")).Location
                 taglist.ForEach(Sub(x) item.AddTag(x))
                 item.Family = "TRMS"
                 item.Article = "0828734"
@@ -221,23 +239,26 @@ Namespace com.vasilchenko.DatabaseConnection
                 item.Manufacture = "Phoenix Contact"
                 item.Count = System.Math.Ceiling(shtCount / 72)
                 FillItemDescription(item, inputList)
-                If Not item.Description Is Nothing Then AddItemToList(inputList, item)
+                If Not item.Description Is Nothing And shtCount <> 0 Then AddItemToList(inputList, item)
             End If
 
-            If inputList.Exists(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("4") And x.Instance = 61) Then
+            'If inputList.Exists(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("4") And x.Instance = 61) Then
+            If inputList.Exists(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("4")) Then
                 Dim shtCount = 0.0
                 Dim taglist As New List(Of String)
                 Dim item As New DrawingSpecificationItem
-                For Each temp In inputList.FindAll(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("4") And x.Instance = 61)
+                'For Each temp In inputList.FindAll(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("4") And x.Instance = 61)
+                For Each temp In inputList.FindAll(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("4"))
                     If temp.CatalogName.StartsWith("UT 4") Then
                         shtCount += temp.Count * 2
                     ElseIf temp.CatalogName.StartsWith("UTTB 4") Then
                         shtCount += temp.Count * 4
                     End If
                     TerminalMarkingTagAdd(taglist, temp)
+                    item.Instance = IIf(temp.Instance = 61, 64, 764)
                 Next
-                item.Location = inputList.Find(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("4") And x.Instance = 61).Location
-                item.Instance = AdditionalFunctions.GetLastNumericFromString("64.КЛЕММЫ-МАРКИРОВКА")
+                'item.Location = inputList.Find(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("4") And x.Instance = 61).Location
+                item.Location = inputList.Find(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("4")).Location
                 taglist.ForEach(Sub(x) item.AddTag(x))
                 item.Family = "TRMS"
                 item.Article = "0828736"
@@ -247,20 +268,23 @@ Namespace com.vasilchenko.DatabaseConnection
                 item.Manufacture = "Phoenix Contact"
                 item.Count = System.Math.Ceiling(shtCount / 60)
                 FillItemDescription(item, inputList)
-                If Not item.Description Is Nothing Then AddItemToList(inputList, item)
+                If Not item.Description Is Nothing And shtCount <> 0 Then AddItemToList(inputList, item)
 
             End If
 
-            If inputList.Exists(Function(x) (x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("URT")) And x.CatalogName.Contains("6") And x.Instance = 61) Then
+            'If inputList.Exists(Function(x) (x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("URT")) And x.CatalogName.Contains("6") And x.Instance = 61) Then
+            If inputList.Exists(Function(x) (x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("URT")) And x.CatalogName.Contains("6")) Then
                 Dim shtCount As Double = 0.0
                 Dim taglist As New List(Of String)
                 Dim item As New DrawingSpecificationItem
-                For Each temp In inputList.FindAll(Function(x) (x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("URT")) And x.CatalogName.Contains("6") And x.Instance = 61)
+                'For Each temp In inputList.FindAll(Function(x) (x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("URT")) And x.CatalogName.Contains("6") And x.Instance = 61)
+                For Each temp In inputList.FindAll(Function(x) (x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("URT")) And x.CatalogName.Contains("6"))
                     shtCount += temp.Count * 2
                     TerminalMarkingTagAdd(taglist, temp)
+                    item.Instance = IIf(temp.Instance = 61, 64, 764)
                 Next
-                item.Location = inputList.Find(Function(x) (x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("URT")) And x.CatalogName.Contains("6") And x.Instance = 61).Location
-                item.Instance = AdditionalFunctions.GetLastNumericFromString("64.КЛЕММЫ-МАРКИРОВКА")
+                'item.Location = inputList.Find(Function(x) (x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("URT")) And x.CatalogName.Contains("6") And x.Instance = 61).Location
+                item.Location = inputList.Find(Function(x) (x.CatalogName.StartsWith("UT") Or x.CatalogName.StartsWith("URT")) And x.CatalogName.Contains("6")).Location
                 taglist.ForEach(Sub(x) item.AddTag(x))
                 item.Family = "TRMS"
                 item.Article = "0828740"
@@ -270,7 +294,7 @@ Namespace com.vasilchenko.DatabaseConnection
                 item.Manufacture = "Phoenix Contact"
                 item.Count = System.Math.Ceiling(shtCount / 42)
                 FillItemDescription(item, inputList)
-                If Not item.Description Is Nothing Then AddItemToList(inputList, item)
+                If Not item.Description Is Nothing And shtCount <> 0 Then AddItemToList(inputList, item)
             End If
 
             If inputList.Exists(Function(x) x.CatalogName.StartsWith("UT") And x.CatalogName.Contains("16") And x.Instance = 61) Then
@@ -292,7 +316,7 @@ Namespace com.vasilchenko.DatabaseConnection
                 item.Manufacture = "Phoenix Contact"
                 item.Count = System.Math.Ceiling(shtCount / 30)
                 FillItemDescription(item, inputList)
-                If Not item.Description Is Nothing Then AddItemToList(inputList, item)
+                If Not item.Description Is Nothing And shtCount <> 0 Then AddItemToList(inputList, item)
             End If
         End Sub
 
@@ -312,7 +336,7 @@ Namespace com.vasilchenko.DatabaseConnection
             If objInput.Family = "" OrElse objInput.Family.ToLower = "cbl" Then
                 For Each strCurtable In DatabaseTableList
                     strSqlQuery = "select [CATALOG] from " & strCurtable & " where [CATALOG] = '" & objInput.CatalogName & "'"
-                    objDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.default_catSQLConnectionString, True)
+                    objDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.eknis_asu_default_catConnectionString, True)
                     If Not IsNothing(objDataTable) AndAlso objDataTable.Rows.Count <> 0 Then
                         objInput.Family = strCurtable
                         Exit For
@@ -328,14 +352,15 @@ Namespace com.vasilchenko.DatabaseConnection
                 objInput.Family = "PLCIO"
             End If
 
-            strSqlQuery = "SELECT [DESCRIPTION], [USER1], [USER2], [USER3],[ASSEMBLYCODE] " &
+            strSqlQuery = "SELECT [MANUFACTURER], [DESCRIPTION], [USER1], [USER2], [USER3],[ASSEMBLYCODE] " &
                           "FROM [" & objInput.Family & "] " &
                           "WHERE [CATALOG] = '" & objInput.CatalogName & "'"
 
-            objDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.default_catSQLConnectionString, False)
+            objDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.eknis_asu_default_catConnectionString, False)
             If Not IsNothing(objDataTable) Then
 
                 objInput.Description = objDataTable.Rows(0).Item("DESCRIPTION")
+                If Not IsDBNull(objDataTable.Rows(0).Item("MANUFACTURER")) Then objInput.Manufacture = objDataTable.Rows(0).Item("MANUFACTURER")
                 If Not IsDBNull(objDataTable.Rows(0).Item("USER1")) Then objInput.Article = objDataTable.Rows(0).Item("USER1")
                 If Not IsDBNull(objDataTable.Rows(0).Item("USER2")) Then
                     objInput.Unit = objDataTable.Rows(0).Item("USER2")
@@ -363,7 +388,7 @@ Namespace com.vasilchenko.DatabaseConnection
                           "FROM " & objInput.Family & " " &
                           "WHERE ASSEMBLYLIST like '%" & strAssemblyCode & "%'"
 
-            objDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.default_catSQLConnectionString, False)
+            objDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.eknis_asu_default_catConnectionString, False)
             If Not IsNothing(objDataTable) Then
                 For Each objRow In objDataTable.Rows
                     Dim objNewItem As New DrawingSpecificationItem
@@ -416,7 +441,7 @@ Namespace com.vasilchenko.DatabaseConnection
                 Const strSqlQuery As String = "select name " &
                                               "From sys.tables " &
                                               "where name Not Like '#_%' ESCAPE '#' and name not like 'DataModel'"
-                objDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.default_catSQLConnectionString, False)
+                objDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.eknis_asu_default_catConnectionString, False)
                 If Not IsNothing(objDataTable) Then
                     For Each objRow In objDataTable.Rows
                         DatabaseTableList.Add(objRow.Item("name"))
@@ -515,7 +540,7 @@ Namespace com.vasilchenko.DatabaseConnection
                                   "FROM [W0] " &
                                   "WHERE [CATALOG] = '" & currentItem.CatalogName & "'"
 
-                    Dim objSqlDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.default_catSQLConnectionString, False)
+                    Dim objSqlDataTable = DatabaseConnections.GetSqlDataTable(strSqlQuery, My.Settings.eknis_asu_default_catConnectionString, False)
                     If Not IsNothing(objDataTable) Then
                         currentItem.Description = objSqlDataTable.Rows(0).Item("DESCRIPTION")
                         If Not IsDBNull(objSqlDataTable.Rows(0).Item("USER1")) Then currentItem.Article = objSqlDataTable.Rows(0).Item("USER1")

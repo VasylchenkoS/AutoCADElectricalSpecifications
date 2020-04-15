@@ -4,9 +4,9 @@ Imports Autodesk.AutoCAD.EditorInput
 
 Namespace com.vasilchenko.Modules
     Public Module PageTableUpdater
-        Public Sub UpdatePageTable(acDatabase As Database, acTransaction As Transaction, acEditor As Editor)
-            
-            Dim list As List(Of  Integer) = PageListMaker.SelectPages()
+        Public Function UpdatePageTable(acDatabase As Database, acTransaction As Transaction, acEditor As Editor) As ObjectId
+
+            Dim list As List(Of Integer) = PageListMaker.SelectPages()
             Dim itemSortedList As SortedList(Of String, List(Of DrawingSpecificationItem)) = PageListMaker.MakePagesItemList(acDatabase, acTransaction, list)
 
             Dim acPromptEntOpt As New PromptEntityOptions(vbLf & "Select Table:")
@@ -15,7 +15,7 @@ Namespace com.vasilchenko.Modules
             Dim acResult As PromptEntityResult = acEditor.GetEntity(acPromptEntOpt)
 
             If acResult.Status <> PromptStatus.OK Then
-                Exit Sub
+                Return Nothing
             End If
 
             Dim acTable = DirectCast(acTransaction.GetObject(acResult.ObjectId, OpenMode.ForWrite), Table)
@@ -28,8 +28,9 @@ Namespace com.vasilchenko.Modules
 
             acTable.DeleteRows(1, acTable.Rows.Count - 1)
             PageTableDrawing.FillTable(itemSortedList, acTable)
-            
-        End Sub
+
+            Return acResult.ObjectId
+        End Function
 
     End Module
 End Namespace

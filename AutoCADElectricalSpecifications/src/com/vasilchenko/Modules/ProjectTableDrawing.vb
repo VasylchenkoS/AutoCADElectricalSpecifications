@@ -7,12 +7,13 @@ Imports Autodesk.AutoCAD.GraphicsInterface
 Namespace com.vasilchenko.Modules
     Public Module ProjectTableDrawing
         ReadOnly DblRowsHeight As Double = 8
-        Public Sub ProjectTable(acDatabase As Database, acTransaction As Transaction, acEditor As Editor)
-            Dim itemList As SortedList(Of string, List(Of DrawingSpecificationItem)) = ItemListMaker.MakeSheetItemList(acDatabase, acTransaction)
+        Public Function ProjectTable(acDatabase As Database, acTransaction As Transaction, acEditor As Editor) As ObjectId
+            Dim itemList As SortedList(Of String, List(Of DrawingSpecificationItem)) = ProjectItemListMaker.MakeProjectItemList(acDatabase, acTransaction)
+            Dim acTableObjectID As ObjectId
 
             Dim acPoint As PromptPointResult = acEditor.GetPoint("\nEnter table insertion point: ")
             If acPoint.Status <> PromptStatus.OK Then
-                Exit Sub
+                Return Nothing
             End If
 
             Dim acBlockTable As BlockTable = DirectCast(acTransaction.GetObject(acDatabase.BlockTableId, OpenMode.ForRead), BlockTable)
@@ -72,11 +73,13 @@ Namespace com.vasilchenko.Modules
             acTable.SetBreakSpacing(25)
             acTable.RecomputeTableBlock(True)
 
-            acBlkTblRecord.AppendEntity(acTable)
+            acTableObjectID = acBlkTblRecord.AppendEntity(acTable)
             acTransaction.AddNewlyCreatedDBObject(acTable, True)
 
             acTable.Dispose()
-        End Sub
+
+            Return acTableObjectID
+        End Function
 
         Private Sub FillTable(itemSortedList As SortedList(Of String, List(Of DrawingSpecificationItem)), ByRef acTable As Table)
             Dim intRowsNum As Integer = 1
@@ -95,7 +98,7 @@ Namespace com.vasilchenko.Modules
                 acTable.Rows(intRowsNum).Style = "Данные"
                 acTable.Rows(intRowsNum).IsMergeAllEnabled = True
                 acTable.Cells(intRowsNum, 0).TextString = locCount & ". " & location
-                acTable.Cells(intRowsNum, 0).Alignment = CellAlignment.MiddleCenter
+                acTable.Cells(intRowsNum, 0).Alignment = CellAlignment.MiddleLeft 
                 intRowsNum += 1
                 locCount += 1
             End If
@@ -125,7 +128,7 @@ Namespace com.vasilchenko.Modules
                 .Cells(intRowsNum, 3).TextString = element.Article
                 .Cells(intRowsNum, 4).TextString = element.Manufacture
                 .Cells(intRowsNum, 5).TextString = element.Unit
-                .Cells(intRowsNum, 6).TextString = Replace(Math.Round(elementCount, 3).ToString,".",",")
+                .Cells(intRowsNum, 6).TextString = Replace(Math.Round(elementCount, 3).ToString, ".", ",")
                 .Cells(intRowsNum, 8).TextString = element.Note
                 .Cells(intRowsNum, 0).Alignment = CellAlignment.MiddleLeft
                 .Cells(intRowsNum, 1).Alignment = CellAlignment.MiddleLeft

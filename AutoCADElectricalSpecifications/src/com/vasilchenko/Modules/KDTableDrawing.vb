@@ -7,12 +7,13 @@ Imports Autodesk.AutoCAD.GraphicsInterface
 Namespace com.vasilchenko.Modules
     Public Module KDTableDrawing
         ReadOnly DblRowsHeight As Double = 8
-        Public Sub DrawSheetTable(acDatabase As Database, acTransaction As Transaction, acEditor As Editor)
-            Dim itemList As SortedList(Of String, List(Of DrawingSpecificationItem)) = ItemListMaker.MakeSheetItemList(acDatabase, acTransaction)
+        Public Function DrawSheetTable(acDatabase As Database, acTransaction As Transaction, acEditor As Editor) As ObjectId
+            Dim itemList As SortedList(Of String, List(Of DrawingSpecificationItem)) = KDItemListMaker.MakeKDItemList(acDatabase, acTransaction)
+            Dim acTableObjectID As ObjectId
 
             Dim acPoint As PromptPointResult = acEditor.GetPoint("\nEnter table insertion point: ")
             If acPoint.Status <> PromptStatus.OK Then
-                Exit Sub
+                Return Nothing
             End If
 
             Dim acBlockTable As BlockTable = DirectCast(acTransaction.GetObject(acDatabase.BlockTableId, OpenMode.ForRead), BlockTable)
@@ -69,13 +70,14 @@ Namespace com.vasilchenko.Modules
             acTable.SetBreakSpacing(25)
             acTable.RecomputeTableBlock(True)
 
-            acBlkTblRecord.AppendEntity(acTable)
+            acTableObjectID = acBlkTblRecord.AppendEntity(acTable)
             acTransaction.AddNewlyCreatedDBObject(acTable, True)
 
             AdditionalFunctions.FootnoteUpdater(acDatabase, acTransaction, acEditor, acTable)
-
             acTable.Dispose()
-        End Sub
+
+            Return acTableObjectID
+        End Function
 
         Friend Sub FillTable(itemSortedList As SortedList(Of String, List(Of DrawingSpecificationItem)), ByRef acTable As Table)
             Dim intRowsNum As Integer = 1
